@@ -1,308 +1,272 @@
-```html
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>Vanessa Engler — Job Application Tracker</title>
-
-  <!-- PWA & Mobile Home Screen Meta Tags -->
-  <meta name="application-name" content="Job Tracker" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Job Tracker" />
-  <meta name="theme-color" content="#4f46e5" />
-
-  <!-- Embedded SVG App Icon (Data URI for zero external asset dependencies) -->
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23g)'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='system-ui,-apple-system,sans-serif' font-weight='800' font-size='210'%3EVE%3C/text%3E%3C/svg%3E" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23g)'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='system-ui,-apple-system,sans-serif' font-weight='800' font-size='210'%3EVE%3C/text%3E%3C/svg%3E" />
-
-  <!-- Embedded PWA Web App Manifest via Blob Script -->
-  <script>
-    (function injectPWAManifest() {
-      const iconSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234f46e5'/%3E%3Cstop offset='100%25' stop-color='%237c3aed'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='112' fill='url(%23g)'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='white' font-family='system-ui,-apple-system,sans-serif' font-weight='800' font-size='210'%3EVE%3C/text%3E%3C/svg%3E";
-      const manifest = {
-        name: "Vanessa Engler — Job Tracker",
-        short_name: "Job Tracker",
-        description: "Personal job application, contact, and legitimacy tracker for Vanessa Engler.",
-        start_url: "./",
-        display: "standalone",
-        background_color: "#0f172a",
-        theme_color: "#4f46e5",
-        icons: [
-          { src: iconSvg, sizes: "192x192", type: "image/svg+xml", purpose: "any maskable" },
-          { src: iconSvg, sizes: "512x512", type: "image/svg+xml", purpose: "any maskable" }
-        ]
-      };
-      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = URL.createObjectURL(blob);
-      document.head.appendChild(link);
-    })();
-  </script>
-
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <!-- Tailwind CSS -->
+  <title>Vanessa Engler — Job Application Tracker</title>
+  <link id="pwa-manifest" rel="manifest" href="" />
+  <link id="pwa-icon" rel="apple-touch-icon" href="" />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          colors: {
+            slate: { 850: '#172033', 950: '#090d16' }
           }
         }
       }
     };
   </script>
-
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-
   <style>
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
-    }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    select.custom-select {
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.65rem center;
-      background-size: 1em;
-      padding-right: 2rem;
-    }
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200 pb-24">
 
-  <!-- Toast Notification Container -->
-  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-  <!-- Top Navigation / Header -->
-  <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-extrabold shadow-md shadow-indigo-500/20 shrink-0 tracking-tight">
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/20 text-sm">
           VE
         </div>
-        <div class="min-w-0">
+        <div>
           <div class="flex items-center gap-2 flex-wrap">
-            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
-              Job Application Tracker
-            </h1>
-            <!-- Live Sync Status Badge -->
-            <button onclick="openLiveSyncModal()" id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-400 transition" title="Configure Live Sync">
-              <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
-              <span id="sync-status-text">Local Mode</span>
-            </button>
+            <h1 class="text-base sm:text-lg font-bold tracking-tight">Job Tracker</h1>
+            <span id="syncStatusBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+              Local Mode
+            </span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
-            Vanessa Engler • <span id="header-role-count">27</span> Roles (LinkedIn &amp; Indeed)
-          </p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">27 Applications • Google Sheets Two-Way Sync</p>
         </div>
       </div>
 
-      <!-- Header Actions -->
+      <!-- Action Toolbar -->
       <div class="flex items-center gap-1.5 sm:gap-2">
-        <!-- View Switcher (Card vs Table) -->
-        <div class="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/70">
-          <button id="btn-view-cards" onclick="setViewMode('cards')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Cards
-          </button>
-          <button id="btn-view-table" onclick="setViewMode('table')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-            <i data-lucide="table-2" class="w-3.5 h-3.5"></i> Table
-          </button>
-        </div>
-
-        <!-- Live Sync Settings Button -->
-        <button onclick="openLiveSyncModal()" class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60 transition text-xs font-semibold flex items-center gap-1.5" title="Live Sync / Database Settings">
-          <i data-lucide="cloud" class="w-4 h-4"></i>
-          <span class="hidden md:inline">Live Sync</span>
+        <button id="refreshSyncBtn" onclick="pullFromRemote(true)" title="Refresh from Google Sheet" class="hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         </button>
 
-        <!-- Manual Refresh Now Button -->
-        <button onclick="refreshLiveSync(true)" id="btn-refresh-sync" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition" title="Refresh Live Data Now" aria-label="Refresh Live Data">
-          <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4"></i>
+        <button onclick="openSyncModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/20 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          <span>Live Sync</span>
         </button>
 
-        <!-- GitHub Pages / PWA Helper -->
-        <button onclick="openSyncModal()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition text-xs font-medium flex items-center gap-1.5" title="GitHub Pages & Android Install Guide">
-          <i data-lucide="github" class="w-4 h-4 text-indigo-500"></i>
-          <span class="hidden xl:inline">PWA Guide</span>
+        <button onclick="openJobModal()" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-600/20 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Add</span>
         </button>
 
-        <!-- Data Menu (Export / Import / Reset) -->
-        <div class="relative" id="data-menu-wrapper">
-          <button onclick="toggleDataMenu()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition text-xs font-medium flex items-center gap-1.5" title="Export or Import Data">
-            <i data-lucide="download" class="w-4 h-4"></i>
-            <span class="hidden lg:inline">Data</span>
+        <!-- Data Menu -->
+        <div class="relative" id="dataDropdownWrapper">
+          <button onclick="toggleDataMenu()" class="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            <span>Data</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
-          <div id="data-menu" class="hidden fixed sm:absolute left-1/2 -translate-x-1/2 top-16 sm:top-auto sm:mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-800 shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-40 text-sm">
-            <button onclick="downloadGoogleSheetsTemplate()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5 font-medium text-emerald-600 dark:text-emerald-400">
-              <i data-lucide="table" class="w-4 h-4"></i> Google Sheets CSV Template
+          <div id="dataMenu" class="hidden fixed sm:absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl py-1.5 z-50 text-xs">
+            <button onclick="exportCSV(); toggleDataMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5">
+              <span>📊</span><span>Download CSV Backup</span>
             </button>
-            <button onclick="copyGitHubReadyHTML()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5 font-medium text-indigo-600 dark:text-indigo-400">
-              <i data-lucide="copy" class="w-4 h-4"></i> Copy GitHub-Ready HTML
+            <button onclick="exportJSON(); toggleDataMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5">
+              <span>📦</span><span>Download JSON Backup</span>
             </button>
-            <button onclick="exportCSV()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5">
-              <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-500"></i> Export CSV Spreadsheet
-            </button>
-            <button onclick="exportJSON()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5">
-              <i data-lucide="file-code" class="w-4 h-4 text-sky-500"></i> Export JSON Backup
-            </button>
-            <label class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5 cursor-pointer">
-              <i data-lucide="upload" class="w-4 h-4 text-amber-500"></i> Import JSON Backup
-              <input type="file" id="import-json-input" accept=".json" class="hidden" onchange="importJSON(event)" />
+            <label class="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5 cursor-pointer">
+              <span>📥</span><span>Import JSON Backup</span>
+              <input type="file" accept=".json" onchange="importJSON(event); toggleDataMenu();" class="hidden" />
             </label>
-            <div class="border-t border-slate-100 dark:border-slate-700 my-1"></div>
-            <button onclick="confirmResetData()" class="w-full px-4 py-2.5 text-left text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2.5">
-              <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset to Default 27
+            <div class="border-t border-slate-200 dark:border-slate-700 my-1"></div>
+            <button onclick="resetToDefaults(); toggleDataMenu();" class="w-full text-left px-4 py-2.5 text-rose-500 hover:bg-rose-500/10 flex items-center gap-2.5">
+              <span>↺</span><span>Reset to Default 27 Roles</span>
             </button>
           </div>
         </div>
 
-        <!-- Dark Mode Toggle -->
-        <button onclick="toggleTheme()" id="theme-toggle" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition" aria-label="Toggle Dark Mode">
-          <i data-lucide="moon" class="w-4 h-4 hidden dark:block text-amber-400"></i>
-          <i data-lucide="sun" class="w-4 h-4 block dark:hidden text-slate-700"></i>
-        </button>
-
-        <!-- Add New Role Button -->
-        <button onclick="openEditModal(null)" class="px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs sm:text-sm shadow-sm shadow-indigo-500/25 flex items-center gap-1.5 transition active:scale-95">
-          <i data-lucide="plus" class="w-4 h-4"></i>
-          <span>Add Role</span>
+        <button onclick="toggleTheme()" title="Toggle Theme" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          <svg id="sunIcon" class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="moonIcon" class="w-4 h-4 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-5">
+  <main class="max-w-7xl mx-auto px-4 pt-4 space-y-4">
+    <!-- Stats Strip -->
+    <div id="statsBar" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5"></div>
 
-    <!-- KPI Summary Strip -->
-    <section class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="stats-grid">
-      <!-- Populated dynamically via JS -->
-    </section>
-
-    <!-- Status Filter Tabs + Search & Secondary Filters -->
-    <section class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-3.5">
-      <!-- Status Pill Tabs (Horizontal Scrollable on Mobile) -->
-      <div class="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar pb-1 border-b border-slate-100 dark:border-slate-800">
-        <div class="flex items-center gap-1.5" id="status-tabs">
-          <button onclick="setStatusTab('ALL')" data-status="ALL" class="status-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap">All</button>
-          <button onclick="setStatusTab('Applied')" data-status="Applied" class="status-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap">Applied</button>
-          <button onclick="setStatusTab('Interviewing')" data-status="Interviewing" class="status-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap">Interviewing</button>
-          <button onclick="setStatusTab('Offer')" data-status="Offer" class="status-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap">Offer</button>
-          <button onclick="setStatusTab('Rejected')" data-status="Rejected" class="status-tab px-3.5 py-1.5 rounded-xl text-xs font-semibold transition whitespace-nowrap">Rejected</button>
-        </div>
-
-        <!-- Mobile View Switcher -->
-        <div class="flex sm:hidden items-center bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl shrink-0">
-          <button id="m-btn-view-cards" onclick="setViewMode('cards')" class="p-1.5 rounded-lg text-xs transition" aria-label="Card View">
-            <i data-lucide="layout-grid" class="w-4 h-4"></i>
-          </button>
-          <button id="m-btn-view-table" onclick="setViewMode('table')" class="p-1.5 rounded-lg text-xs transition" aria-label="Table View">
-            <i data-lucide="table-2" class="w-4 h-4"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Search Input + Source & Work Mode Filters -->
-      <div class="flex flex-col md:flex-row gap-3">
+    <!-- Search & Filters -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 space-y-2.5 shadow-sm">
+      <div class="flex flex-col sm:flex-row gap-2">
         <div class="relative flex-1">
-          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <input
-            type="text"
-            id="search-input"
-            oninput="renderApps()"
-            placeholder="Search role, company, notes, or other open roles..."
-            class="w-full pl-10 pr-9 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-          />
-          <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            <i data-lucide="x" class="w-4 h-4"></i>
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="searchInput" type="text" oninput="render()" placeholder="Search role, company, platform, other roles..." class="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 outline-none transition" />
+        </div>
+        <div class="flex gap-2">
+          <select id="statusFilter" onchange="render()" class="px-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none">
+            <option value="ALL">All Statuses</option>
+            <option value="Applied">Applied</option>
+            <option value="Interviewing">Interviewing</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <select id="platformFilter" onchange="render()" class="px-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none">
+            <option value="ALL">All Platforms</option>
+            <option value="Indeed">Indeed</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="Direct / Job Board">Direct / Other</option>
+          </select>
+          <select id="legitimacyFilter" onchange="render()" class="px-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none">
+            <option value="ALL">All Legitimacy</option>
+            <option value="Verified">Verified Only</option>
+            <option value="Caution">Caution / Verify</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards Container -->
+    <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+  </main>
+
+  <!-- Live Sync Modal -->
+  <div id="syncModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          Google Sheets Live Sync
+        </h2>
+        <button onclick="closeSyncModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 space-y-1">
+          <p class="font-semibold">Two-Way Sync via Google Apps Script</p>
+          <p>Paste your deployed Apps Script Web App URL (ending in <code class="font-mono">/exec</code>) so edits on your phone automatically update your Google Sheet, and updates made in Gemini sync right back to your phone.</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block font-semibold text-slate-700 dark:text-slate-200">Apps Script Web App URL (<code class="font-mono">/exec</code>) or Google Sheet Link</label>
+          <input id="sheetUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none text-xs" />
+        </div>
+
+        <div id="syncMessage" class="hidden p-2.5 rounded-xl text-xs font-medium"></div>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button onclick="saveAndSyncSheet()" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition">
+            Save & Sync Now
+          </button>
+          <button onclick="disconnectSheet()" class="py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+            Disconnect
           </button>
         </div>
 
-        <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-          <select id="filter-source" onchange="renderApps()" class="custom-select px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="ALL">Source: All</option>
-            <option value="LinkedIn">LinkedIn</option>
-            <option value="Indeed">Indeed</option>
-          </select>
-
-          <select id="filter-remote" onchange="renderApps()" class="custom-select px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="ALL">Work Mode: All</option>
-            <option value="Remote">Remote Only</option>
-            <option value="On-Site / Hybrid">On-Site / Hybrid</option>
-          </select>
-
-          <select id="filter-legitimacy" onchange="renderApps()" class="col-span-2 sm:col-span-1 custom-select px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="ALL">Legitimacy: All</option>
-            <option value="Verified">Verified Companies</option>
-            <option value="Caution">Caution / Verify Closely</option>
-          </select>
+        <div class="border-t border-slate-200 dark:border-slate-800 pt-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-700 dark:text-slate-200">Need the Apps Script code?</span>
+            <button onclick="copyAppsScript()" id="copyScriptBtn" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[11px] transition">
+              Copy Apps Script Code
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">
+            In your Google Sheet: <strong>Extensions → Apps Script</strong> → paste code → <strong>Deploy → New deployment → Web app</strong> (Execute as: <em>Me</em>, Access: <em>Anyone</em>).
+          </p>
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Active Filter Count & Reset -->
-      <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
-        <span id="results-count">Showing 27 of 27 applications</span>
-        <button id="reset-filters-btn" onclick="resetFilters()" class="hidden text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
-          Reset all filters
-        </button>
+  <!-- Add / Edit Role Modal -->
+  <div id="jobModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h2 id="jobModalTitle" class="text-base font-bold">Add Job Application</h2>
+        <button onclick="closeJobModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">✕</button>
       </div>
-    </section>
+      <form id="jobForm" onsubmit="saveJobForm(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editJobId" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Role Title *</label>
+            <input id="fRole" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Company *</label>
+            <input id="fCompany" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Work Location / Remote</label>
+            <input id="fRemote" type="text" placeholder="Remote (US)" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Where Applied</label>
+            <input id="fPlatform" type="text" placeholder="LinkedIn / Indeed" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Phone Number</label>
+            <input id="fPhone" type="text" placeholder="(555) 123-4567" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Email</label>
+            <input id="fEmail" type="text" placeholder="careers@company.com" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Website URL</label>
+            <input id="fWebsite" type="text" placeholder="https://company.com" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Date Applied</label>
+            <input id="fDateApplied" type="text" placeholder="Nov 26, 2026" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Status</label>
+            <select id="fStatus" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500">
+              <option value="Applied">Applied</option>
+              <option value="Interviewing">Interviewing</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Legitimacy Check</label>
+            <input id="fLegitimacy" type="text" value="Verified - Legitimate Company" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Other Available Roles at Company</label>
+          <input id="fOtherRoles" type="text" placeholder="Brand Designer, UI Designer" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Notes</label>
+          <textarea id="fNotes" rows="2" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"></textarea>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+          <button type="button" id="deleteJobBtn" onclick="deleteCurrentJob()" class="hidden px-3 py-2 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-semibold">
+            Delete Role
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" onclick="closeJobModal()" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-medium">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">Save Role</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 
-    <!-- Card View Container (Default on mobile) -->
-    <section id="cards-view-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- Populated via JS -->
-    </section>
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold shadow-xl"></div>
 
-    <!-- Table View Container -->
-    <section id="table-view-container" class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/50 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-              <th class="py-3.5 px-4">Role &amp; Company</th>
-              <th class="py-3.5 px-3">Source &amp; Date</th>
-              <th class="py-3.5 px-3">Work Type</th>
-              <th class="py-3.5 px-4">Contact &amp; Website</th>
-              <th class="py-3.5 px-4">Legitimacy Check</th>
-              <th class="py-3.5 px-4">Other Open Roles</th>
-              <th class="py-3.5 px-3">Status</th>
-              <th class="py-3.5 px-4 text-right">Edit</th>
-            </tr>
-          </thead>
-          <tbody id="desktop-table-body" class="divide-y divide-slate-100 dark:divide-slate-800/80 text-sm">
-            <!-- Populated via JS -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Empty State -->
-    <div id="empty-state" class="hidden bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-12 text-center space-y-3">
-      <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto text-slate-400">
-        <i data-lucide="search-x" class="w-6 h-6"></i>
-      </div>
-      <h3 class="text-base font-semibold">No matching applications found</h3>
-      <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-        Try adjusting your search keywords or resetting your active filters.
-      </p>
-      <button onclick="resetFilters()" class="px-4 py-2 rounded-x
+  <script>
+    const DEFAULT_JOBS = [
+      { id: "1", role: "UI/UX Design Online Instructor - Remote Job", company: "EnthuZiastic", remote: "Remote", platform: "Direct / Job Board", phone: "(408) 641-7288", email: "contact@enthuziastic.com", website: "https://enthuziastic.com", dateApplied: "Nov 15, 2026", status: "Applied", otherRoles: "Online Coding Instructor, Graphic Design Mentor", legitimacy: "Verified - Legitimate EdTech Platform", notes: "Live 1-on-1 & group learning platform" },
+      { id: "2", role: "Remote-Business Development Specialist", company: "TW", remote: "Remote", platform: "Indeed", phone: "N/A", email: "N/A", website: "N/A", dateApplied: "Nov 2026", status: "Applied", otherRoles: "N/A", legitimacy: "Caution - Verify Company Name", notes: "Abbreviated company name (TW); confirm full entity before sharing sensitive info" },
+      { id: "3", role: "Social Media Designer", company: "Comfrt", remote: "Remote", platform: "Indeed", phone: "N/A", email: "info@comfrt.com", website: "https://comfrt.com", dateApplied: "Nov 2026", status: "Applied", otherRoles: "Digital Designer, Content Creator", legitimacy: "Verified - 
