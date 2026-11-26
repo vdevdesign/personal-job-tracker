@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Job Tracker" />
+  <title>Vanessa Engler — Job Application Tracker</title>
+  <link id="pwa-manifest" rel="manifest" href="" />
+  <link id="pwa-icon" rel="apple-touch-icon" href="" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            slate: { 850: '#172033', 950: '#090d16' }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200 pb-24">
+
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-30 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/20 text-sm">
+          VE
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-base sm:text-lg font-bold tracking-tight">Job Tracker</h1>
+            <span id="syncStatusBadge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+              Local Mode
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">27 Applications • Google Sheets Two-Way Sync</p>
+        </div>
+      </div>
+
+      <!-- Action Toolbar -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button id="refreshSyncBtn" onclick="pullFromRemote(true)" title="Refresh from Google Sheet" class="hidden p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <svg id="refreshIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </button>
+
+        <button onclick="openSyncModal()" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/20 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>
+          <span>Live Sync</span>
+        </button>
+
+        <button onclick="openJobModal()" class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm shadow-indigo-600/20 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>Add</span>
+        </button>
+
+        <!-- Data Menu -->
+        <div class="relative" id="dataDropdownWrapper">
+          <button onclick="toggleDataMenu()" class="inline-flex items-center gap-1 px-2.5 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+            <span>Data</span>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="dataMenu" class="hidden fixed sm:absolute left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0 mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-xl py-1.5 z-50 text-xs">
+            <button onclick="exportCSV(); toggleDataMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5">
+              <span>📊</span><span>Download CSV Backup</span>
+            </button>
+            <button onclick="exportJSON(); toggleDataMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5">
+              <span>📦</span><span>Download JSON Backup</span>
+            </button>
+            <label class="w-full text-left px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-700/70 flex items-center gap-2.5 cursor-pointer">
+              <span>📥</span><span>Import JSON Backup</span>
+              <input type="file" accept=".json" onchange="importJSON(event); toggleDataMenu();" class="hidden" />
+            </label>
+            <div class="border-t border-slate-200 dark:border-slate-700 my-1"></div>
+            <button onclick="resetToDefaults(); toggleDataMenu();" class="w-full text-left px-4 py-2.5 text-rose-500 hover:bg-rose-500/10 flex items-center gap-2.5">
+              <span>↺</span><span>Reset to Default 27 Roles</span>
+            </button>
+          </div>
+        </div>
+
+        <button onclick="toggleTheme()" title="Toggle Theme" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+          <svg id="sunIcon" class="w-4 h-4 hidden dark:block text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <svg id="moonIcon" class="w-4 h-4 block dark:hidden text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 pt-4 space-y-4">
+    <!-- Stats Strip -->
+    <div id="statsBar" class="grid grid-cols-2 sm:grid-cols-5 gap-2.5"></div>
+
+    <!-- Search & Filters -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 space-y-2.5 shadow-sm">
+      <div class="flex flex-col sm:flex-row gap-2">
+        <div class="relative flex-1">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input id="searchInput" type="text" oninput="render()" placeholder="Search role, company, platform, other roles..." class="w-full pl-9 pr-3 py-2 text-xs sm:text-sm rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 focus:bg-white dark:focus:bg-slate-900 outline-none transition" />
+        </div>
+        <div class="flex gap-2">
+          <select id="statusFilter" onchange="render()" class="px-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none">
+            <option value="ALL">All Statuses</option>
+            <option value="Applied">Applied</option>
+            <option value="Interviewing">Interviewing</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <select id="platformFilter" onchange="render()" class="px-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none">
+            <option value="ALL">All Platforms</option>
+            <option value="Indeed">Indeed</option>
+            <option value="LinkedIn">LinkedIn</option>
+            <option value="Direct / Job Board">Direct / Other</option>
+          </select>
+          <select id="legitimacyFilter" onchange="render()" class="px-3 py-2 text-xs rounded-xl bg-slate-100 dark:bg-slate-800 border border-transparent focus:border-indigo-500 outline-none">
+            <option value="ALL">All Legitimacy</option>
+            <option value="Verified">Verified Only</option>
+            <option value="Caution">Caution / Verify</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cards Container -->
+    <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+  </main>
+
+  <!-- Live Sync Modal -->
+  <div id="syncModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h2 class="text-base font-bold flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+          Google Sheets Live Sync
+        </h2>
+        <button onclick="closeSyncModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+        <div class="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 space-y-1">
+          <p class="font-semibold">Two-Way Sync via Google Apps Script</p>
+          <p>Paste your deployed Apps Script Web App URL (ending in <code class="font-mono">/exec</code>) so edits on your phone automatically update your Google Sheet, and updates made in Gemini sync right back to your phone.</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="block font-semibold text-slate-700 dark:text-slate-200">Apps Script Web App URL (<code class="font-mono">/exec</code>) or Google Sheet Link</label>
+          <input id="sheetUrlInput" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full px-3 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:border-emerald-500 outline-none text-xs" />
+        </div>
+
+        <div id="syncMessage" class="hidden p-2.5 rounded-xl text-xs font-medium"></div>
+
+        <div class="flex flex-wrap gap-2 pt-1">
+          <button onclick="saveAndSyncSheet()" class="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold transition">
+            Save & Sync Now
+          </button>
+          <button onclick="disconnectSheet()" class="py-2.5 px-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+            Disconnect
+          </button>
+        </div>
+
+        <div class="border-t border-slate-200 dark:border-slate-800 pt-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-semibold text-slate-700 dark:text-slate-200">Need the Apps Script code?</span>
+            <button onclick="copyAppsScript()" id="copyScriptBtn" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-[11px] transition">
+              Copy Apps Script Code
+            </button>
+          </div>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">
+            In your Google Sheet: <strong>Extensions → Apps Script</strong> → paste code → <strong>Deploy → New deployment → Web app</strong> (Execute as: <em>Me</em>, Access: <em>Anyone</em>).
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Role Modal -->
+  <div id="jobModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between">
+        <h2 id="jobModalTitle" class="text-base font-bold">Add Job Application</h2>
+        <button onclick="closeJobModal()" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400">✕</button>
+      </div>
+      <form id="jobForm" onsubmit="saveJobForm(event)" class="space-y-3 text-xs">
+        <input type="hidden" id="editJobId" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Role Title *</label>
+            <input id="fRole" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Company *</label>
+            <input id="fCompany" required type="text" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Work Location / Remote</label>
+            <input id="fRemote" type="text" placeholder="Remote (US)" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Where Applied</label>
+            <input id="fPlatform" type="text" placeholder="LinkedIn / Indeed" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Phone Number</label>
+            <input id="fPhone" type="text" placeholder="(555) 123-4567" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Email</label>
+            <input id="fEmail" type="text" placeholder="careers@company.com" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Website URL</label>
+            <input id="fWebsite" type="text" placeholder="https://company.com" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Date Applied</label>
+            <input id="fDateApplied" type="text" placeholder="Nov 26, 2026" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Status</label>
+            <select id="fStatus" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500">
+              <option value="Applied">Applied</option>
+              <option value="Interviewing">Interviewing</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Legitimacy Check</label>
+            <input id="fLegitimacy" type="text" value="Verified - Legitimate Company" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Other Available Roles at Company</label>
+          <input id="fOtherRoles" type="text" placeholder="Brand Designer, UI Designer" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500" />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Notes</label>
+          <textarea id="fNotes" rows="2" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500"></textarea>
+        </div>
+        <div class="flex justify-between items-center pt-2">
+          <button type="button" id="deleteJobBtn" onclick="deleteCurrentJob()" class="hidden px-3 py-2 rounded-xl bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-semibold">
+            Delete Role
+          </button>
+          <div class="flex gap-2 ml-auto">
+            <button type="button" onclick="closeJobModal()" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-medium">Cancel</button>
+            <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold">Save Role</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 hidden px-4 py-2.5 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-semibold shadow-xl"></div>
+
+  <script>
+    const DEFAULT_JOBS = [
+      { id: "1", role: "UI/UX Design Online Instructor - Remote Job", company: "EnthuZiastic", remote: "Remote", platform: "Direct / Job Board", phone: "(408) 641-7288", email: "contact@enthuziastic.com", website: "https://enthuziastic.com", dateApplied: "Nov 15, 2026", status: "Applied", otherRoles: "Online Coding Instructor, Graphic Design Mentor", legitimacy: "Verified - Legitimate EdTech Platform", notes: "Live 1-on-1 & group learning platform" },
+      { id: "2", role: "Remote-Business Development Specialist", company: "TW", remote: "Remote", platform: "Indeed", phone: "N/A", email: "N/A", website: "N/A", dateApplied: "Nov 2026", status: "Applied", otherRoles: "N/A", legitimacy: "Caution - Verify Company Name", notes: "Abbreviated company name (TW); confirm full entity before sharing sensitive info" },
+      { id: "3", role: "Social Media Designer", company: "Comfrt", remote: "Remote", platform: "Indeed", phone: "N/A", email: "info@comfrt.com", website: "https://comfrt.com", dateApplied: "Nov 2026", status: "Applied", otherRoles: "Digital Designer, Content Creator", legitimacy: "Verified - Legitimate Apparel Brand", notes: "Well-known D2C loungewear/apparel brand" },
+      { id: "4", role: "Learning Experience Design Specialist", company: "Horace Mann", remote: "Remote", platform: "Indeed", phone: "(800) 999-1030", email: "N/A", website: "https://horacemann.com", dateApplied: "Nov 2026", status: "Applied", otherRoles: "Instructional Designer, UX Researcher", legitimacy: "Verified - Legitimate Fortune/Public Insurer", notes: "Educator-focused insurance & financial services" },
+      { id: "5", role: "Curriculum/Instructional Designer", company: "NetImpact Strategies", remote: "Remote", platform: "Indeed", phone: "(703) 506-8300", email: "info@netimpactstrategies.com", website: "https://netimpactstrategies.com", dateApplied: "Nov 2026", status: "Applied", otherRoles: "UX Designer, Federal Solutions Architect", legitimacy: "Verified - Legitimate GovTech Consultancy", notes: "Federal digital transformation consultancy" },
+      { id: "6", role: "Creative Arts Instructor for Kids & Teens", company: "Wimzee", remote: "Remote", platform: "Indeed", phone: "N/A", email: "hello@wimzee.com", website: "https://wimzee.com", dateApplied: "Nov 2026", status: "Applied", otherRoles: "Online Enrichment Instructor", legitimacy: "Verified - Legitimate Kids Enrichment Platform", notes: "Virtual creative classes for youth" },
+      { id: "7", role: "Social Media Coordinator", company: "Universal Education", remote: "Remote", platform: "Indeed", phone: "N/A", email: "N/A", website: "N/A", dateApplied: "Nov 2026", status: "Applied", otherRoles: "Content Specialist", legitimacy: "Caution - Common Company Name", notes: "Verify official domain during outreach" },
+      { id: "8", role: "Senior Brand Designer, Creative", company: "ShopMy", remote: "Remote", platform: "Direct / Job Board", phone: "N/A", email: "hello@shopmy.us", website: "https://shopmy.us", dateApplied: "Nov 2026", status: "Applied", otherRoles: "Product Designer, Brand Marketing Manager", legitimacy: "Verified - Legitimate Creator Commerce Platform", notes: "Well-funded creator storefront platform" },
+      { id: "9", role: "Digital Designer", company: "Comfrt", remote: "Remote", platform: "Indeed", phone: "N/A", email: "info@comfrt.com", website: "https://comfrt.com", dateApplied: "Nov 2026", status: "Applied", otherRoles: "Social Media Designer, Brand Designer", legitimacy: "Verified - Legitimate Apparel Brand", notes: "Second role applied at Comfrt" },
+      { id: "10", role: "Junior UX Designer", company: "Bask Health", remote: "Remote (US)", platform: "Indeed", phone: "N/A", email: "support@bask.health", website: "https://bask.health", dateApplied: "Nov 15, 2026", status: "Applied", otherRoles: "Product Designer, Frontend Engineer", legitimacy: "Verified - Legitimate Telehealth Platform", notes: "Digital health & telehealth infrastructure" },
+      { id: "11", role: "Senior UI Designer", company: "Trinity Consultants", remote: "Remote", platform: "Indeed", phone: "(972) 661-8100", email: "N/A", website: "https://trinityconsultants.com", dateApplied: "Nov 14, 2026", status: "Applied", otherRoles: "UX/UI Designer, Digital Product Designer", legitimacy: "Verified - Legitimate Environmental Consultancy", notes: "Established global consulting firm" },
+      { id: "12", role: "Graphic Designer", company: "JustFoodForDogs", remote: "Hybrid / US", platform: "Indeed", phone: "(866) 726-9509", email: "info@justfoodfordogs.com", website: "https://justfoodfordogs.com", dateApplied: "Nov 14, 2026", status: "Applied", otherRoles: "Packaging Designer, Digital Marketing Designer", legitimacy: "Verified - Legitimate Pet Nutrition Brand", notes: "Major national fresh pet food brand" },
+      { id: "13", role: "Presentation Designer (Remote U.S.)", company: "RR Donnelley", remote: "Remote (Phoenix, AZ)", platform: "Indeed", phone: "(800) 742-4455", email: "N/A", website: "https://rrd.com", dateApplied: "Nov 14, 2026", status: "Applied", otherRoles: "Graphic Designer, Creative Production Specialist", legitimacy: "Verified - Legitimate Fortune 500 Communications Firm", notes: "Large enterprise marketing & print communications" },
+      { id: "14", role: "Graphic Designer", company: "Naples Soap Company", remote: "On-site / Hybrid (Fort Myers, FL)", platform: "Indeed", phone: "(239) 325-8263", email: "customercare@naplessoap.com", website: "https://naplessoap.com", dateApplied: "Nov 14, 2026", status: "Applied", otherRoles: "E-Commerce Specialist, Retail Associate", legitimacy: "Verified - Legitimate Local Skincare Brand", notes: "HQ in Fort Myers, FL" },
+      { id: "15", role: "Senior Designer", company: "Hovercraft", remote: "Remote", platform: "Indeed", phone: "(503) 208-2919", email: "hello@hovercraftstudio.com", website: "https://hovercraftstudio.com", dateApplied: "Nov 13, 2026", status: "Applied", otherRoles: "Art Director, Motion Designer", legitimacy: "Verified - Legitimate Design & Interactive Studio", notes: "Portland-based brand & experience agency" },
+      { id: "16", role: "Graphic/Production Designer", company: "Artemis Arc", remote: "Remote", platform: "Indeed", phone: "N/A", email: "N/A", website: "https://artemisarc.com", dateApplied: "Nov 13, 2026", status: "Applied", otherRoles: "Visual Designer, Production Artist", legitimacy: "Verified - Legitimate Creative/Consulting Firm", notes: "Verify exact job posting URL on company site" },
+      { id: "17", role: "Freelance AI-Native UI/UX Designer", company: "Tallwave", remote: "Remote", platform: "Indeed", phone: "(480) 422-1777", email: "hello@tallwave.com", website: "https://tallwave.com", dateApplied: "Nov 13, 2026", status: "Applied", otherRoles: "Senior Product Designer, Growth Strategist", legitimacy: "Verified - Legitimate Digital Innovation Agency", notes: "Scottsdale-based product & experience agency" },
+      { id: "18", role: "Graphic Designer", company: "Omni Advertising", remote: "Remote", platform: "Indeed", phone: "(561) 748-1155", email: "info@omniadvertising.com", website: "https://omniadvertising.com", dateApplied: "Nov 12, 2026", status: "Applied", otherRoles: "Senior Art Director, Digital Media Buyer", legitimacy: "Verified - Legitimate Automotive/Full-Service Agency", notes: "Established Florida-based ad agency" },
+      { id: "19", role: "Graphic Designer", company: "Creative Circle", remote: "Remote (US)", platform: "LinkedIn", phone: "(323) 930-2333", email: "info@creativecircle.com", website: "https://creativecircle.com", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "UI/UX Designer, Production Artist, Art Director", legitimacy: "Verified - Legitimate Creative Staffing Agency", notes: "1 LinkedIn connection; part of Everforth" },
+      { id: "20", role: "Multidisciplinary Designer", company: "Wpromote", remote: "Remote (US)", platform: "LinkedIn", phone: "(310) 321-4430", email: "hello@wpromote.com", website: "https://wpromote.com", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "Senior Brand Designer, Paid Social Designer", legitimacy: "Verified - Legitimate Digital Marketing Agency", notes: "1 LinkedIn connection; major performance agency" },
+      { id: "21", role: "Graphic Designer, Outdoors", company: "Hybrid Apparel", remote: "Remote (US)", platform: "LinkedIn", phone: "(323) 727-2000", email: "info@hybridapparel.com", website: "https://hybridapparel.com", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "Apparel Graphic Designer, Senior CAD Artist", legitimacy: "Verified - Legitimate Apparel Manufacturer", notes: "Major licensed & outdoor apparel company" },
+      { id: "22", role: "Advertisement Designer", company: "The N2 Company", remote: "Remote (US)", platform: "LinkedIn", phone: "(910) 202-0917", email: "info@n2co.com", website: "https://n2co.com", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "Publication Designer, Editorial Layout Artist", legitimacy: "Verified - Legitimate Media/Publishing Company", notes: "1 LinkedIn connection; neighborhood publications" },
+      { id: "23", role: "Junior Full Stack Developer", company: "nexacode", remote: "Remote (US)", platform: "LinkedIn", phone: "N/A", email: "info@nexacode.com", website: "https://nexacode.com", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "Frontend Developer, Software Engineer", legitimacy: "Verified - Legitimate IT Consulting Firm", notes: "Matches React/TypeScript/Vite stack" },
+      { id: "24", role: "Graphic Designer - eCommerce Fashion Brand", company: "Velvet Caviar", remote: "Remote (US)", platform: "LinkedIn", phone: "N/A", email: "hello@velvetcaviar.com", website: "https://velvetcaviar.com", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "Social Media Content Creator, Retention Designer", legitimacy: "Verified - Legitimate D2C Accessories Brand", notes: "1 LinkedIn connection; phone cases & tech accessories" },
+      { id: "25", role: "Digital Marketing Specialist (remote) | AI", company: "Demenios", remote: "Remote (US)", platform: "LinkedIn", phone: "N/A", email: "N/A", website: "N/A", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "N/A", legitimacy: "Caution - Limited Public Footprint", notes: "Minimal public web presence; verify recruiter email domain before sharing personal details" },
+      { id: "26", role: "Graphic Designer & Marketing Specialist", company: "Eximia Research", remote: "Remote (US)", platform: "LinkedIn", phone: "(919) 800-5154", email: "info@eximiaresearch.com", website: "https://eximiaresearch.com", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "Clinical Recruitment Specialist, Marketing Coordinator", legitimacy: "Verified - Legitimate Clinical Research Network", notes: "1 LinkedIn connection; multi-site clinical trials" },
+      { id: "27", role: "Graphic and Website Designer", company: "Republican Jobs", remote: "Remote (US)", platform: "LinkedIn", phone: "N/A", email: "info@republicanjobs.gop", website: "https://republicanjobs.gop", dateApplied: "Nov 25, 2026", status: "Applied", otherRoles: "Digital Communications Specialist, Web Developer", legitimacy: "Verified - Legitimate Political Recruiting Platform", notes: "1 LinkedIn connection; GOP campaign & org listings" }
+    ];
+
+    const APPS_SCRIPT_TEMPLATE = `const SHEET_NAME = 'Sheet1';
+const HEADERS = ['id', 'role', 'company', 'remote', 'platform', 'phone', 'email', 'website', 'dateApplied', 'status', 'otherRoles', 'legitimacy', 'notes'];
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME) || ss.getSheets()[0];
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(HEADERS);
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  const sheet = getOrCreateSheet();
+  const data = sheet.getDataRange().getValues();
+  if (data.length <= 1) {
+    return ContentService.createTextOutput(JSON.stringify({ status: 'ok', rows: [] }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  const headers = data[0].map(h => String(h).trim());
+  const rows = data.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = row[i] !== undefined ? String(row[i]) : '';
+    });
+    return obj;
+  });
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok', rows: rows }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  const sheet = getOrCreateSheet();
+  const payload = JSON.parse(e.postData.contents);
+  const rows = payload.rows || [];
+
+  sheet.clearContents();
+  sheet.appendRow(HEADERS);
+
+  if (rows.length > 0) {
+    const values = rows.map(r => HEADERS.map(h => r[h] !== undefined && r[h] !== null ? String(r[h]) : ''));
+    sheet.getRange(2, 1, values.length, HEADERS.length).setValues(values);
+  }
+
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok', count: rows.length }))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+    const STORAGE_KEY = 've_job_tracker_v3';
+    const SYNC_URL_KEY = 've_job_tracker_sync_url';
+    let jobs = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null') || structuredClone(DEFAULT_JOBS);
+    let syncUrl = localStorage.getItem(SYNC_URL_KEY) || '';
+
+    (function initPWA() {
+      const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#9333ea"/></linearGradient></defs><rect width="512" height="512" rx="112" fill="url(#g)"/><text x="256" y="315" font-family="Arial,sans-serif" font-weight="bold" font-size="210" fill="white" text-anchor="middle">VE</text></svg>`;
+      const iconUrl = 'data:image/svg+xml;base64,' + btoa(svgIcon);
+      document.getElementById('pwa-icon').href = iconUrl;
+      const manifest = {
+        name: "Vanessa Engler Job Tracker",
+        short_name: "Job Tracker",
+        start_url: "./",
+        display: "standalone",
+        background_color: "#090d16",
+        theme_color: "#0f172a",
+        icons: [{ src: iconUrl, sizes: "512x512", type: "image/svg+xml" }]
+      };
+      document.getElementById('pwa-manifest').href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+    })();
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    function updateSyncBadge() {
+      const badge = document.getElementById('syncStatusBadge');
+      const refreshBtn = document.getElementById('refreshSyncBtn');
+      if (!syncUrl) {
+        badge.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:text-slate-300';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Local Mode';
+        refreshBtn.classList.add('hidden');
+      } else if (syncUrl.includes('script.google.com')) {
+        badge.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Two-Way Live (Sheets)';
+        refreshBtn.classList.remove('hidden');
+      } else {
+        badge.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-sky-500/15 text-sky-600 dark:text-sky-400';
+        badge.innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-sky-500"></span> Read-Only (Sheets)';
+        refreshBtn.classList.remove('hidden');
+      }
+    }
+
+    async function pushToRemote() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+      if (!syncUrl || !syncUrl.includes('script.google.com')) return;
+      try {
+        await fetch(syncUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ rows: jobs })
+        });
+        showToast('Synced changes to Google Sheet');
+      } catch (err) {
+        showToast('Saved locally (Sheet sync offline)');
+      }
+    }
+
+    async function pullFromRemote(manual = false) {
+      if (!syncUrl) return;
+      const icon = document.getElementById('refreshIcon');
+      if (icon) icon.classList.add('animate-spin');
+      try {
+        if (syncUrl.includes('script.google.com')) {
+          const res = await fetch(syncUrl);
+          const json = await res.json();
+          if (json && Array.isArray(json.rows)) {
+            if (json.rows.length === 0 && jobs.length > 0) {
+              await pushToRemote();
+            } else if (json.rows.length > 0) {
+              jobs = json.rows;
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+              render();
+              if (manual) showToast(`Synced ${jobs.length} roles from Google Sheet`);
+            }
+          }
+        } else {
+          const match = syncUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+          if (match) {
+            const res = await fetch(`https://opensheet.elk.sh/${match[1]}/Sheet1`);
+            const rows = await res.json();
+            if (Array.isArray(rows) && rows.length > 0) {
+              jobs = rows;
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+              render();
+              if (manual) showToast(`Pulled ${jobs.length} roles from Google Sheet`);
+            }
+          }
+        }
+      } catch (err) {
+        if (manual) showToast('Could not reach Google Sheet');
+      } finally {
+        if (icon) icon.classList.remove('animate-spin');
+      }
+    }
+
+    function openSyncModal() {
+      document.getElementById('sheetUrlInput').value = syncUrl;
+      document.getElementById('syncMessage').classList.add('hidden');
+      document.getElementById('syncModal').classList.remove('hidden');
+    }
+
+    function closeSyncModal() {
+      document.getElementById('syncModal').classList.add('hidden');
+    }
+
+    async function saveAndSyncSheet() {
+      const val = document.getElementById('sheetUrlInput').value.trim();
+      const msgEl = document.getElementById('syncMessage');
+      if (!val) {
+        msgEl.className = 'p-2.5 rounded-xl text-xs font-medium bg-rose-500/15 text-rose-500';
+        msgEl.textContent = 'Please paste your Apps Script /exec URL or Google Sheet URL first.';
+        msgEl.classList.remove('hidden');
+        return;
+      }
+      syncUrl = val;
+      localStorage.setItem(SYNC_URL_KEY, syncUrl);
+      updateSyncBadge();
+      await pullFromRemote(true);
+      closeSyncModal();
+    }
+
+    function disconnectSheet() {
+      syncUrl = '';
+      localStorage.removeItem(SYNC_URL_KEY);
+      document.getElementById('sheetUrlInput').value = '';
+      updateSyncBadge();
+      closeSyncModal();
+      showToast('Disconnected Google Sheet');
+    }
+
+    function copyAppsScript() {
+      navigator.clipboard.writeText(APPS_SCRIPT_TEMPLATE);
+      const btn = document.getElementById('copyScriptBtn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy Apps Script Code', 2000);
+      showToast('Apps Script code copied to clipboard');
+    }
+
+    function statusColors(status) {
+      switch (status) {
+        case 'Interviewing': return 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30';
+        case 'Offer': return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30';
+        case 'Rejected': return 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30';
+        default: return 'bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border-indigo-500/30';
+      }
+    }
+
+    function updateStatus(id, newStatus) {
+      const item = jobs.find(j => String(j.id) === String(id));
+      if (!item) return;
+      item.status = newStatus;
+      render();
+      pushToRemote();
+    }
+
+    function render() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const sFilter = document.getElementById('statusFilter').value;
+      const pFilter = document.getElementById('platformFilter').value;
+      const lFilter = document.getElementById('legitimacyFilter').value;
+
+      const counts = {
+        total: jobs.length,
+        Applied: jobs.filter(j => j.status === 'Applied').length,
+        Interviewing: jobs.filter(j => j.status === 'Interviewing').length,
+        Offer: jobs.filter(j => j.status === 'Offer').length,
+        Rejected: jobs.filter(j => j.status === 'Rejected').length
+      };
+
+      document.getElementById('statsBar').innerHTML = `
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400">Total Roles</div>
+          <div class="text-xl font-bold mt-0.5">${counts.total}</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3">
+          <div class="text-[11px] text-indigo-500">Applied</div>
+          <div class="text-xl font-bold mt-0.5">${counts.Applied}</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3">
+          <div class="text-[11px] text-amber-500">Interviewing</div>
+          <div class="text-xl font-bold mt-0.5">${counts.Interviewing}</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3">
+          <div class="text-[11px] text-emerald-500">Offers</div>
+          <div class="text-xl font-bold mt-0.5">${counts.Offer}</div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 col-span-2 sm:col-span-1">
+          <div class="text-[11px] text-rose-500">Rejected</div>
+          <div class="text-xl font-bold mt-0.5">${counts.Rejected}</div>
+        </div>
+      `;
+
+      const filtered = jobs.filter(j => {
+        const matchesQuery = !q || [j.role, j.company, j.platform, j.otherRoles, j.notes, j.remote].some(v => (v || '').toLowerCase().includes(q));
+        const matchesStatus = sFilter === 'ALL' || j.status === sFilter;
+        const matchesPlatform = pFilter === 'ALL' || (j.platform || '').toLowerCase().includes(pFilter.toLowerCase());
+        const isCaution = (j.legitimacy || '').toLowerCase().includes('caution');
+        const matchesLegit = lFilter === 'ALL' || (lFilter === 'Caution' ? isCaution : !isCaution);
+        return matchesQuery && matchesStatus && matchesPlatform && matchesLegit;
+      });
+
+      const grid = document.getElementById('cardsGrid');
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-center py-12 text-sm text-slate-500">No applications match your filters.</div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(j => {
+        const isCaution = (j.legitimacy || '').toLowerCase().includes('caution');
+        const hasWebsite = j.website && j.website !== 'N/A';
+        const hasPhone = j.phone && j.phone !== 'N/A';
+        const hasEmail = j.email && j.email !== 'N/A';
+
+        return `
+          <article class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col justify-between gap-3 shadow-sm hover:border-indigo-500/40 transition">
+            <div class="space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span class="inline-block px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 mb-1">
+                    ${j.platform || 'Job Board'} • ${j.dateApplied || ''}
+                  </span>
+                  <h3 class="font-bold text-sm leading-snug">${j.role}</h3>
+                  <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5">${j.company} <span class="text-slate-400 font-normal">• ${j.remote || 'Remote'}</span></p>
+                </div>
+                <select onchange="updateStatus('${j.id}', this.value)" class="px-2.5 py-1 rounded-xl text-[11px] font-semibold border outline-none cursor-pointer ${statusColors(j.status)}">
+                  <option value="Applied" ${j.status === 'Applied' ? 'selected' : ''}>Applied</option>
+                  <option value="Interviewing" ${j.status === 'Interviewing' ? 'selected' : ''}>Interviewing</option>
+                  <option value="Offer" ${j.status === 'Offer' ? 'selected' : ''}>Offer</option>
+                  <option value="Rejected" ${j.status === 'Rejected' ? 'selected' : ''}>Rejected</option>
+                </select>
+              </div>
+
+              <!-- Contact Chips -->
+              <div class="flex flex-wrap gap-1.5 text-[11px]">
+                ${hasWebsite ? `<a href="${j.website}" target="_blank" rel="noopener" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-500/15 hover:text-indigo-400 transition">🌐 Website</a>` : ''}
+                ${hasPhone ? `<a href="tel:${j.phone}" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-emerald-500/15 hover:text-emerald-400 transition">📞 ${j.phone}</a>` : ''}
+                ${hasEmail ? `<a href="mailto:${j.email}" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-sky-500/15 hover:text-sky-400 transition">✉️ ${j.email}</a>` : ''}
+              </div>
+
+              <!-- Other Roles -->
+              <div class="text-[11px] bg-slate-50 dark:bg-slate-850 rounded-xl p-2.5 border border-slate-100 dark:border-slate-800/80">
+                <span class="font-semibold text-slate-500 dark:text-slate-400">Other Roles:</span>
+                <span class="text-slate-700 dark:text-slate-300">${j.otherRoles || 'N/A'}</span>
+              </div>
+
+              ${j.notes ? `<p class="text-[11px] text-slate-500 dark:text-slate-400 italic">"${j.notes}"</p>` : ''}
+            </div>
+
+            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2 text-[11px]">
+              <span class="font-medium ${isCaution ? 'text-amber-500' : 'text-emerald-500'}">
+                ${isCaution ? '⚠️' : '✅'} ${j.legitimacy}
+              </span>
+              <button onclick="openJobModal('${j.id}')" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold transition">
+                Edit
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function openJobModal(id = null) {
+      const form = document.getElementById('jobForm');
+      form.reset();
+      document.getElementById('editJobId').value = id || '';
+      const delBtn = document.getElementById('deleteJobBtn');
+
+      if (id) {
+        const j = jobs.find(item => String(item.id) === String(id));
+        document.getElementById('jobModalTitle').textContent = 'Edit Application';
+        document.getElementById('fRole').value = j.role || '';
+        document.getElementById('fCompany').value = j.company || '';
+        document.getElementById('fRemote').value = j.remote || '';
+        document.getElementById('fPlatform').value = j.platform || '';
+        document.getElementById('fPhone').value = j.phone || '';
+        document.getElementById('fEmail').value = j.email || '';
+        document.getElementById('fWebsite').value = j.website || '';
+        document.getElementById('fDateApplied').value = j.dateApplied || '';
+        document.getElementById('fStatus').value = j.status || 'Applied';
+        document.getElementById('fLegitimacy').value = j.legitimacy || '';
+        document.getElementById('fOtherRoles').value = j.otherRoles || '';
+        document.getElementById('fNotes').value = j.notes || '';
+        delBtn.classList.remove('hidden');
+      } else {
+        document.getElementById('jobModalTitle').textContent = 'Add Job Application';
+        document.getElementById('fDateApplied').value = 'Nov 26, 2026';
+        delBtn.classList.add('hidden');
+      }
+      document.getElementById('jobModal').classList.remove('hidden');
+    }
+
+    function closeJobModal() {
+      document.getElementById('jobModal').classList.add('hidden');
+    }
+
+    function saveJobForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('editJobId').value;
+      const entry = {
+        id: id || String(Date.now()),
+        role: document.getElementById('fRole').value.trim(),
+        company: document.getElementById('fCompany').value.trim(),
+        remote: document.getElementById('fRemote').value.trim() || 'Remote',
+        platform: document.getElementById('fPlatform').value.trim() || 'LinkedIn',
+        phone: document.getElementById('fPhone').value.trim() || 'N/A',
+        email: document.getElementById('fEmail').value.trim() || 'N/A',
+        website: document.getElementById('fWebsite').value.trim() || 'N/A',
+        dateApplied: document.getElementById('fDateApplied').value.trim(),
+        status: document.getElementById('fStatus').value,
+        otherRoles: document.getElementById('fOtherRoles').value.trim() || 'N/A',
+        legitimacy: document.getElementById('fLegitimacy').value.trim() || 'Verified',
+        notes: document.getElementById('fNotes').value.trim()
+      };
+
+      if (id) {
+        const idx = jobs.findIndex(j => String(j.id) === String(id));
+        if (idx > -1) jobs[idx] = entry;
+      } else {
+        jobs.unshift(entry);
+      }
+
+      closeJobModal();
+      render();
+      pushToRemote();
+    }
+
+    function deleteCurrentJob() {
+      const id = document.getElementById('editJobId').value;
+      jobs = jobs.filter(j => String(j.id) !== String(id));
+      closeJobModal();
+      render();
+      pushToRemote();
+    }
+
+    function toggleDataMenu() {
+      document.getElementById('dataMenu').classList.toggle('hidden');
+    }
+
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function exportCSV() {
+      const headers = ['id', 'role', 'company', 'remote', 'platform', 'phone', 'email', 'website', 'dateApplied', 'status', 'otherRoles', 'legitimacy', 'notes'];
+      const csv = [headers.join(',')].concat(
+        jobs.map(r => headers.map(h => `"${String(r[h] || '').replace(/"/g, '""')}"`).join(','))
+      ).join('
+');
+      downloadBlob(csv, 'Vanessa_Engler_Job_Tracker.csv', 'text/csv');
+    }
+
+    function exportJSON() {
+      downloadBlob(JSON.stringify(jobs, null, 2), 'Vanessa_Engler_Job_Tracker.json', 'application/json');
+    }
+
+    function downloadBlob(content, filename, type) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([content], { type }));
+      a.download = filename;
+      a.click();
+    }
+
+    function importJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const parsed = JSON.parse(ev.target.result);
+          if (Array.isArray(parsed)) {
+            jobs = parsed;
+            render();
+            pushToRemote();
+            showToast(`Imported ${jobs.length} roles`);
+          }
+        } catch { showToast('Invalid JSON file'); }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetToDefaults() {
+      jobs = structuredClone(DEFAULT_JOBS);
+      render();
+      pushToRemote();
+      showToast('Reset to default 27 roles');
+    }
+
+    document.addEventListener('click', e => {
+      const wrapper = document.getElementById('dataDropdownWrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        document.getElementById('dataMenu').classList.add('hidden');
+      }
+    });
+
+    updateSyncBadge();
+    render();
+    if (syncUrl) pullFromRemote(false);
+  </script>
+</body>
+</html>
