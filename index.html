@@ -96,22 +96,29 @@
   <!-- Top Navigation / Header -->
   <header class="sticky top-0 z-30 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 min-w-0">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-extrabold shadow-md shadow-indigo-500/20 shrink-0 tracking-tight">
           VE
         </div>
-        <div>
-          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
-            Job Application Tracker
-          </h1>
-          <p class="text-xs text-slate-500 dark:text-slate-400">
-            Vanessa Engler • 27 Verified Roles (LinkedIn &amp; Indeed)
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 dark:text-white leading-tight">
+              Job Application Tracker
+            </h1>
+            <!-- Live Sync Status Badge -->
+            <button onclick="openLiveSyncModal()" id="sync-status-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-400 transition" title="Configure Live Sync">
+              <span id="sync-status-dot" class="w-2 h-2 rounded-full bg-slate-400"></span>
+              <span id="sync-status-text">Local Mode</span>
+            </button>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
+            Vanessa Engler • <span id="header-role-count">27</span> Roles (LinkedIn &amp; Indeed)
           </p>
         </div>
       </div>
 
       <!-- Header Actions -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5 sm:gap-2">
         <!-- View Switcher (Card vs Table) -->
         <div class="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/70 dark:border-slate-700/70">
           <button id="btn-view-cards" onclick="setViewMode('cards')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
@@ -122,10 +129,21 @@
           </button>
         </div>
 
-        <!-- GitHub Pages / Sync Helper -->
+        <!-- Live Sync Settings Button -->
+        <button onclick="openLiveSyncModal()" class="p-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200/70 dark:border-emerald-800/60 transition text-xs font-semibold flex items-center gap-1.5" title="Live Sync / Database Settings">
+          <i data-lucide="cloud" class="w-4 h-4"></i>
+          <span class="hidden md:inline">Live Sync</span>
+        </button>
+
+        <!-- Manual Refresh Now Button -->
+        <button onclick="refreshLiveSync(true)" id="btn-refresh-sync" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition" title="Refresh Live Data Now" aria-label="Refresh Live Data">
+          <i data-lucide="refresh-cw" id="refresh-icon" class="w-4 h-4"></i>
+        </button>
+
+        <!-- GitHub Pages / PWA Helper -->
         <button onclick="openSyncModal()" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition text-xs font-medium flex items-center gap-1.5" title="GitHub Pages & Android Install Guide">
           <i data-lucide="github" class="w-4 h-4 text-indigo-500"></i>
-          <span class="hidden md:inline">GitHub / PWA</span>
+          <span class="hidden xl:inline">PWA Guide</span>
         </button>
 
         <!-- Data Menu (Export / Import / Reset) -->
@@ -135,6 +153,9 @@
             <span class="hidden lg:inline">Data</span>
           </button>
           <div id="data-menu" class="hidden fixed sm:absolute left-1/2 -translate-x-1/2 top-16 sm:top-auto sm:mt-2 w-64 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-slate-800 shadow-xl border border-slate-200 dark:border-slate-700 py-1.5 z-40 text-sm">
+            <button onclick="downloadGoogleSheetsTemplate()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5 font-medium text-emerald-600 dark:text-emerald-400">
+              <i data-lucide="table" class="w-4 h-4"></i> Google Sheets CSV Template
+            </button>
             <button onclick="copyGitHubReadyHTML()" class="w-full px-4 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center gap-2.5 font-medium text-indigo-600 dark:text-indigo-400">
               <i data-lucide="copy" class="w-4 h-4"></i> Copy GitHub-Ready HTML
             </button>
@@ -284,33 +305,4 @@
       <p class="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto">
         Try adjusting your search keywords or resetting your active filters.
       </p>
-      <button onclick="resetFilters()" class="px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition">
-        Reset Filters
-      </button>
-    </div>
-
-  </main>
-
-  <!-- Quick-Edit / Add Application Modal -->
-  <div id="edit-modal" class="hidden fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-    <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-t-3xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden max-h-[92vh] flex flex-col">
-      <!-- Modal Header -->
-      <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
-        <h2 id="modal-title" class="text-lg font-bold">Edit Application</h2>
-        <button onclick="closeEditModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <!-- Modal Form Body -->
-      <form id="edit-form" onsubmit="saveApplication(event)" class="p-6 overflow-y-auto space-y-4 text-sm">
-        <input type="hidden" id="edit-id" />
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Role Title *</label>
-            <input type="text" id="edit-role" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">Company Name *</label>
-            <input type="text" id="edit-company" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border
+      <button onclick="resetFilters()" class="px-4 py-2 rounded-x
